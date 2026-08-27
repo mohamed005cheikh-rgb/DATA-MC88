@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+<title>Data Factory by MC88 · Mock Data Generator</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --bg-grad: linear-gradient(135deg, #fdf2f8 0%, #f0f9ff 45%, #f5f3ff 100%);
+    --glass: rgba(255,255,255,0.55);
+    --glass-strong: rgba(255,255,255,0.72);
+    --glass-border: rgba(255,255,255,0.65);
+    --blur: blur(20px) saturate(160%);
+    --text: #312e4d;
+    --text-secondary: #6b647f;
+    --text-muted: #9691a8;
+    --border: rgba(148,133,196,0.22);
+    --accent: #a78bfa;
+    --accent-2: #f0abfc;
+    --accent-hover: #8b5cf6;
+    --accent-light: rgba(167,139,250,0.14);
+    --success: #34d399;
+    --danger: #fb7185;
+    --shadow: 0 8px 32px rgba(99,80,166,0.14);
+    --shadow-lg: 0 20px 50px -10px rgba(99,80,166,0.28);
+    --radius-sm: 10px;
+    --radius: 16px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --blob-1: #f0abfc;
+    --blob-2: #93c5fd;
+    --blob-3: #99f6e4;
+  }
+
+  body.dark{
+    --bg-grad: linear-gradient(135deg, #1c1832 0%, #191730 45%, #221a3a 100%);
+    --glass: rgba(36,31,64,0.55);
+    --glass-strong: rgba(40,34,70,0.72);
+    --glass-border: rgba(255,255,255,0.09);
+    --text: #ede9fe;
+    --text-secondary: #b7b0d6;
+    --text-muted: #7c7699;
+    --border: rgba(196,181,253,0.14);
+    --accent: #c4b5fd;
+    --accent-2: #f0abfc;
+    --accent-hover: #a78bfa;
+    --accent-light: rgba(196,181,253,0.14);
+    --success: #6ee7b7;
+    --danger: #fca5a5;
+    --shadow: 0 8px 32px rgba(0,0,0,0.35);
+    --shadow-lg: 0 25px 60px -10px rgba(0,0,0,0.55);
+    --blob-1: #6d28d9;
+    --blob-2: #1d4ed8;
+    --blob-3: #0f766e;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    font-family:'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background: var(--bg-grad);
+    color: var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    transition:background 0.4s ease, color 0.3s ease;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* Signature: floating blurred glass "blobs" behind everything */
+  .blob{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:0.45;
+    z-index:-1;
+    pointer-events:none;
+    animation:float 22s ease-in-out infinite;
+  }
+  .blob-1{ width:420px; height:420px; background:var(--blob-1); top:-120px; left:-100px; }
+  .blob-2{ width:380px; height:380px; background:var(--blob-2); bottom:-140px; right:-80px; animation-delay:-8s; }
+  .blob-3{ width:300px; height:300px; background:var(--blob-3); top:40%; left:60%; animation-delay:-15s; }
+
+  @keyframes float{
+    0%,100%{ transform:translate(0,0) scale(1); }
+    33%{ transform:translate(30px,-40px) scale(1.08); }
+    66%{ transform:translate(-25px,25px) scale(0.95); }
+  }
+
+  h1,h2,h3,.logo-text,.card-title{ font-family:'Space Grotesk', 'Plus Jakarta Sans', sans-serif; }
+
+  .app{
+    max-width:1320px;
+    margin:0 auto;
+    padding:1.5rem;
+    display:flex;
+    flex-direction:column;
+    gap:1.5rem;
+    min-height:100vh;
+  }
+
+  .glass{
+    background:var(--glass);
+    backdrop-filter:var(--blur);
+    -webkit-backdrop-filter:var(--blur);
+    border:1px solid var(--glass-border);
+    box-shadow:var(--shadow);
+  }
+
+  /* Header */
+  .header{
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:1rem;
+    padding:1.1rem 1.75rem;
+    border-radius:var(--radius-xl);
+    position:sticky; top:1rem; z-index:50;
+  }
+
+  .logo{ display:flex; align-items:center; gap:0.8rem; text-decoration:none; }
+
+  .logo-icon{
+    width:44px; height:44px;
+    background:linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius:var(--radius);
+    display:flex; align-items:center; justify-content:center;
+    color:white; font-weight:800; font-size:1.3rem;
+    box-shadow:0 4px 16px rgba(167,139,250,0.45);
+  }
+
+  .logo-text{ font-weight:700; font-size:1.4rem; color:var(--text); letter-spacing:-0.5px; }
+  .logo-text span{ color:var(--accent); }
+
+  .header-actions{ display:flex; align-items:center; gap:0.75rem; }
+
+  .theme-btn{
+    width:44px; height:44px; border-radius:50%;
+    border:1px solid var(--glass-border);
+    background:var(--glass-strong);
+    color:var(--text); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.05rem; transition:all 0.25s ease;
+  }
+  .theme-btn:hover{ background:var(--accent); color:white; transform:rotate(15deg) scale(1.05); }
+
+  .icon-btn{
+    height:44px; padding:0 1rem; border-radius:100px;
+    border:1px solid var(--glass-border);
+    background:var(--glass-strong);
+    color:var(--text-secondary); cursor:pointer;
+    display:flex; align-items:center; gap:0.5rem;
+    font-size:0.85rem; font-weight:600;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    transition:all 0.2s ease;
+  }
+  .icon-btn:hover{ border-color:var(--accent); color:var(--accent); }
+
+  /* Showcase */
+  .showcase{ display:flex; flex-direction:column; gap:1.5rem; padding:1rem 0 0.5rem; }
+  .showcase-intro{ text-align:center; max-width:560px; margin:0 auto 0.5rem; }
+  .showcase-eyebrow{ font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); }
+  .showcase-intro h1{ font-size:2rem; margin-top:0.5rem; letter-spacing:-0.5px; }
+  .showcase-intro p{ color:var(--text-secondary); margin-top:0.6rem; font-size:0.95rem; }
+
+  .slide-track{ display:flex; flex-direction:column; gap:1rem; }
+  .slide{
+    padding:1.5rem 1.75rem;
+    border-radius:var(--radius-lg);
+    display:flex; align-items:center; gap:1.25rem;
+    opacity:0; transform:translateY(28px);
+    transition:opacity 0.7s cubic-bezier(.2,.7,.3,1), transform 0.7s cubic-bezier(.2,.7,.3,1);
+  }
+  .slide.visible{ opacity:1; transform:translateY(0); }
+  .slide-icon{
+    width:52px; height:52px; flex-shrink:0; border-radius:14px;
+    display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+    background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff;
+  }
+  .slide-body h3{ font-size:1.05rem; margin-bottom:0.25rem; }
+  .slide-body p{ color:var(--text-secondary); font-size:0.88rem; line-height:1.5; }
+
+  /* Card */
+  .card{ border-radius:var(--radius-xl); padding:2rem; transition:box-shadow 0.3s ease, border-color 0.3s ease, transform 0.5s ease, opacity 0.5s ease; }
+  .card:hover{ box-shadow:var(--shadow-lg); }
+  .card.reveal{ opacity:0; transform:translateY(20px); }
+  .card.reveal.visible{ opacity:1; transform:translateY(0); }
+
+  .card-header{ margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; }
+  .card-title{ font-weight:700; font-size:1.15rem; color:var(--text); display:flex; align-items:center; gap:0.75rem; letter-spacing:-0.3px; }
+  .card-title i{ color:var(--accent); font-size:1rem; background:var(--accent-light); padding:10px; border-radius:var(--radius-sm); }
+
+  /* Form */
+  .form-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.25rem; }
+  .form-group{ display:flex; flex-direction:column; gap:0.5rem; }
+  .form-label{ font-size:0.78rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.8px; display:flex; align-items:center; gap:0.5rem; }
+  .form-label i{ font-size:0.82rem; color:var(--accent); }
+
+  .form-input, .form-select{
+    width:100%; padding:0.85rem 1rem;
+    border:1px solid var(--border); border-radius:var(--radius);
+    background:var(--glass-strong); color:var(--text);
+    font-family:'Plus Jakarta Sans', sans-serif; font-size:0.95rem; font-weight:500;
+    transition:all 0.2s ease; outline:none;
+    -webkit-appearance:none; appearance:none;
+    backdrop-filter:blur(6px);
+  }
+  .form-select{
+    background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a78bfa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position:right 1rem center; background-repeat:no-repeat; background-size:1.2em;
+    padding-right:2.75rem; cursor:pointer;
+  }
+  .form-input:focus, .form-select:focus{ border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-light); }
+  .form-input::placeholder{ color:var(--text-muted); }
+  .form-hint{ font-size:0.75rem; color:var(--text-muted); }
+
+  .checkbox-row{ display:flex; align-items:center; gap:0.6rem; }
+  .checkbox-row input[type="checkbox"]{ width:18px; height:18px; accent-color:var(--accent); cursor:pointer; }
+
+  .range-row{ display:flex; align-items:center; gap:0.75rem; }
+  .range-row input[type="range"]{ flex:1; accent-color:var(--accent); cursor:pointer; }
+  .range-value{ font-weight:700; color:var(--accent); font-size:0.85rem; min-width:36px; text-align:right; }
+
+  /* Quick Buttons */
+  .quick-btns{ display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.5rem; }
+  .quick-btn{
+    padding:0.45rem 0.85rem; font-size:0.8rem; font-weight:600; border-radius:100px;
+    border:1px solid var(--border); background:var(--glass-strong); color:var(--text-secondary);
+    cursor:pointer; transition:all 0.2s ease; white-space:nowrap; font-family:'Plus Jakarta Sans', sans-serif;
+  }
+  .quick-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .quick-btn.active{ background:linear-gradient(135deg, var(--accent), var(--accent-hover)); color:white; border-color:transparent; box-shadow:0 2px 10px rgba(167,139,250,0.45); }
+
+  /* Generate Button */
+  .btn-generate{
+    display:flex; align-items:center; justify-content:center; gap:0.75rem; width:100%;
+    padding:1rem 1.5rem; background:linear-gradient(135deg, var(--accent), var(--accent-2));
+    color:white; border:none; border-radius:var(--radius); font-weight:700; font-size:1rem;
+    cursor:pointer; transition:all 0.25s ease; font-family:'Plus Jakarta Sans', sans-serif;
+    letter-spacing:0.3px; box-shadow:0 8px 24px rgba(167,139,250,0.4); margin-top:1.5rem;
+  }
+  .btn-generate:hover{ transform:translateY(-2px); box-shadow:0 12px 30px rgba(167,139,250,0.5); }
+  .btn-generate:active{ transform:translateY(0); }
+  .btn-generate:disabled{ opacity:0.6; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  /* Progress */
+  .progress{ height:8px; background:rgba(148,133,196,0.18); border-radius:10px; overflow:hidden; margin-top:1rem; display:none; backdrop-filter:blur(4px); }
+  .progress-bar{ height:100%; background:linear-gradient(90deg, var(--accent), var(--accent-2), var(--success)); background-size:200% 100%; animation:shimmer 1.2s linear infinite; border-radius:10px; transition:width 0.2s ease; width:0%; }
+  @keyframes shimmer{ 0%{ background-position:0% 0; } 100%{ background-position:200% 0; } }
+
+  /* Messy summary */
+  .messy-summary{ margin-top:1rem; padding:0.9rem 1.1rem; border-radius:var(--radius); background:var(--accent-light); border:1px solid var(--border); font-size:0.82rem; color:var(--text-secondary); display:none; }
+  .messy-summary strong{ color:var(--text); }
+
+  /* Table */
+  .table-container{
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    border-radius:var(--radius); border:1px solid var(--glass-border);
+    max-height:480px; overflow-y:auto; background:var(--glass);
+    backdrop-filter:var(--blur);
+  }
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; font-family:'JetBrains Mono', monospace; min-width:760px; }
+  thead{ position:sticky; top:0; z-index:10; }
+  th{
+    background:var(--glass-strong); color:var(--accent); font-weight:700; padding:0.9rem 1.2rem;
+    text-align:left; border-bottom:2px solid var(--accent); font-size:0.72rem; text-transform:uppercase;
+    letter-spacing:0.8px; white-space:nowrap; backdrop-filter:blur(8px);
+  }
+  td{ padding:0.75rem 1.2rem; border-bottom:1px solid var(--border); color:var(--text); white-space:nowrap; }
+  tbody tr{ transition:background 0.15s ease; animation:rowIn 0.4s ease both; }
+  tbody tr:nth-child(n+15){ animation:none; }
+  @keyframes rowIn{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+  tbody tr:hover td{ background:var(--accent-light); }
+  tbody tr:last-child td{ border-bottom:none; }
+  td.cell-null{ color:var(--text-muted); font-style:italic; }
+  td.cell-outlier{ color:var(--danger); font-weight:700; }
+
+  /* Actions Bar */
+  .actions-bar{ display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center; margin-top:1.25rem; }
+  .btn-action{
+    display:flex; align-items:center; gap:0.5rem; padding:0.65rem 1.15rem;
+    border:1px solid var(--glass-border); border-radius:100px; background:var(--glass-strong);
+    color:var(--text); font-weight:600; font-size:0.82rem; cursor:pointer; transition:all 0.2s ease;
+    font-family:'Plus Jakarta Sans', sans-serif;
+  }
+  .btn-action:hover{ border-color:var(--accent); background:var(--accent-light); color:var(--accent); transform:translateY(-1px); }
+  .btn-action i{ font-size:0.9rem; }
+  .row-count-badge{ margin-left:auto; padding:0.5rem 1.2rem; background:var(--glass-strong); border-radius:100px; font-size:0.82rem; font-weight:600; color:var(--text-secondary); border:1px solid var(--glass-border); }
+
+  /* Toast */
+  .toast{
+    position:fixed; bottom:1.5rem; right:1.5rem; z-index:200;
+    padding:1rem 1.4rem; border-radius:var(--radius); background:var(--glass-strong);
+    backdrop-filter:var(--blur); border:1px solid var(--glass-border); box-shadow:var(--shadow-lg);
+    display:flex; align-items:center; gap:0.7rem; font-weight:600; font-size:0.88rem; color:var(--text);
+    transform:translateY(20px); opacity:0; transition:all 0.35s cubic-bezier(.2,.7,.3,1); pointer-events:none;
+  }
+  .toast.show{ transform:translateY(0); opacity:1; }
+  .toast i{ color:var(--success); font-size:1.1rem; }
+
+  /* Footer */
+  .footer{ text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem; margin-top:auto; border-radius:var(--radius-xl); }
+  .footer a{ color:var(--accent); text-decoration:none; font-weight:600; }
+  .footer a:hover{ text-decoration:underline; }
+
+  @media (max-width:640px){
+    .app{ padding:0.75rem; gap:1rem; }
+    .header{ padding:0.9rem; border-radius:var(--radius-lg); top:0.5rem; }
+    .logo-text{ font-size:1.15rem; }
+    .card{ padding:1.25rem; border-radius:var(--radius-lg); }
+    .form-grid{ grid-template-columns:1fr; }
+    .table-container{ max-height:380px; }
+    th, td{ padding:0.6rem 0.85rem; font-size:0.72rem; }
+    .btn-action{ padding:0.55rem 0.95rem; font-size:0.78rem; }
+    .row-count-badge{ margin-left:0; width:100%; text-align:center; }
+    .slide{ flex-direction:column; text-align:center; }
+    .showcase-intro h1{ font-size:1.5rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important; }
+  }
+</style>
+</head>
+<body class="dark">
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<div class="app">
+  <!-- Header -->
+  <header class="header glass">
+    <a href="#" class="logo">
+      <div class="logo-icon">D</div>
+      <div class="logo-text">Data Factory <span>MC88</span></div>
+    </a>
+    <div class="header-actions">
+      <button class="icon-btn" id="resetPrefsBtn" title="Clear saved preferences"><i class="fas fa-rotate-left"></i> Reset</button>
+      <button class="theme-btn" id="themeToggle" title="Toggle theme"><i class="fas fa-sun"></i></button>
+    </div>
+  </header>
+
+  <!-- Showcase / feature slides -->
+  <section class="showcase" id="showcase">
+    <div class="showcase-intro">
+      <div class="showcase-eyebrow">Scroll to explore</div>
+      <h1>Realistic mock data, on demand</h1>
+      <p>Nine cultures, eleven sectors, reproducible seeds and clean-or-messy output — built for people who test things with data.</p>
+    </div>
+    <div class="slide-track">
+      <div class="slide glass"><div class="slide-icon"><i class="fas fa-earth-americas"></i></div><div class="slide-body"><h3>9 name cultures</h3><p>Arabic, French, English, Indian, Canadian, Australian, South African, German and Spanish name sets, cities and phone formats.</p></div></div>
+      <div class="slide glass"><div class="slide-icon"><i class="fas fa-diagram-project"></i></div><div class="slide-body"><h3>Logically consistent rows</h3><p>Managers, senders/receivers and doctors/patients are guaranteed not to collide with themselves.</p></div></div>
+      <div class="slide glass"><div class="slide-icon"><i class="fas fa-broom"></i></div><div class="slide-body"><h3>Clean or messy data</h3><p>Flip on dirty mode to practice cleaning: nulls, duplicates, typos, inconsistent dates and outliers, with a summary of what was injected.</p></div></div>
+      <div class="slide glass"><div class="slide-icon"><i class="fas fa-shuffle"></i></div><div class="slide-body"><h3>Seeded & reproducible</h3><p>Enter a seed number to get the exact same dataset every time — great for demos and bug reports.</p></div></div>
+      <div class="slide glass"><div class="slide-icon"><i class="fas fa-file-export"></i></div><div class="slide-body"><h3>Six export formats</h3><p>CSV, Excel, JSON, SQL inserts, XML and Markdown tables — all generated client-side.</p></div></div>
+    </div>
+  </section>
+
+  <!-- Config Card -->
+  <div class="card glass reveal">
+    <div class="card-header">
+      <h2 class="card-title"><i class="fas fa-sliders-h"></i> Dataset Configuration</h2>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-building"></i> Industry Sector</label>
+        <select class="form-select" id="sectorSelect">
+          <option value="retail">🛒 Retail & E-commerce</option>
+          <option value="finance">💳 Banking & Finance</option>
+          <option value="healthcare">🏥 Healthcare</option>
+          <option value="aviation">✈️ Aviation & Flights</option>
+          <option value="logistics">🚚 Logistics & Shipping</option>
+          <option value="education">📚 Education</option>
+          <option value="hr">👥 HR & Recruitment</option>
+          <option value="personal">🪪 Personal Profiles</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-globe"></i> Name Culture</label>
+        <select class="form-select" id="cultureSelect">
+          <option value="arabic">Arabic (Middle East)</option>
+          <option value="french">French (Europe)</option>
+          <option value="english" selected>English (Global)</option>
+          <option value="india">Indian</option>
+          <option value="canada">Canadian</option>
+          <option value="australia">Australian</option>
+          <option value="southafrica">South African</option>
+          <option value="germany">German</option>
+          <option value="spain">Spanish</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-layer-group"></i> Row Count</label>
+        <input type="number" class="form-input" id="rowCountInput" value="500" min="1" max="50000" placeholder="Enter number of rows">
+        <div class="quick-btns" id="quickRowButtons">
+          <button class="quick-btn" data-rows="50">50</button>
+          <button class="quick-btn" data-rows="200">200</button>
+          <button class="quick-btn active" data-rows="500">500</button>
+          <button class="quick-btn" data-rows="2000">2K</button>
+          <button class="quick-btn" data-rows="5000">5K</button>
+          <button class="quick-btn" data-rows="15000">15K</button>
+          <button class="quick-btn" data-rows="50000">50K</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-hashtag"></i> Seed (optional)</label>
+        <input type="number" class="form-input" id="seedInput" placeholder="Leave blank for random">
+        <span class="form-hint">Same seed + same settings = identical dataset every time.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-broom"></i> Data Quality</label>
+        <div class="checkbox-row">
+          <input type="checkbox" id="messyToggle">
+          <label for="messyToggle" style="font-weight:600; font-size:0.9rem;">Generate messy data (for cleaning practice)</label>
+        </div>
+        <div class="range-row" id="messyRangeRow" style="display:none; margin-top:0.4rem;">
+          <input type="range" id="messyPercent" min="5" max="80" value="25">
+          <span class="range-value" id="messyPercentValue">25%</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-generate" id="generateBtn">
+      <i class="fas fa-wand-magic-sparkles"></i> Generate Dataset
+    </button>
+    <div class="progress" id="progressContainer"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="messy-summary" id="messySummary"></div>
+  </div>
+
+  <!-- Preview Card -->
+  <div class="card glass reveal">
+    <div class="card-header">
+      <h2 class="card-title"><i class="fas fa-table"></i> Live Preview</h2>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead id="tableHeader"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="actions-bar">
+      <button class="btn-action" id="csvBtn"><i class="fas fa-file-csv"></i> CSV</button>
+      <button class="btn-action" id="excelBtn"><i class="fas fa-file-excel"></i> Excel</button>
+      <button class="btn-action" id="jsonBtn"><i class="fas fa-file-code"></i> JSON</button>
+      <button class="btn-action" id="sqlBtn"><i class="fas fa-database"></i> SQL</button>
+      <button class="btn-action" id="xmlBtn"><i class="fas fa-file-lines"></i> XML</button>
+      <button class="btn-action" id="mdBtn"><i class="fab fa-markdown"></i> Markdown</button>
+      <button class="btn-action" id="parquetBtn"><i class="fas fa-cubes"></i> Parquet</button>
+      <button class="btn-action" id="copyBtn"><i class="fas fa-copy"></i> Copy</button>
+      <button class="btn-action" id="openViewerBtn"><i class="fas fa-up-right-from-square"></i> Open Full Preview</button>
+      <span class="row-count-badge" id="rowIndicator">0 rows</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer glass">
+    <p>© 2026 | <a href="mailto:mohamed005cheikh@gmail.com">mohamed005cheikh@gmail.com</a> | by <strong style="color: var(--accent);">MC</strong></p>
+  </footer>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-circle-check"></i><span id="toastText">Done</span></div>
+
+<script>
+(function() {
+  // ============ SEEDED RNG (mulberry32) ============
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return function() {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hashSeed(str) {
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) {
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    return (h ^ (h >>> 16)) >>> 0;
+  }
+  let rng = Math.random;
+  function setRng(seedValue) {
+    if (seedValue === '' || seedValue === null || typeof seedValue === 'undefined') {
+      rng = mulberry32((Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0);
+    } else {
+      rng = mulberry32(hashSeed(String(seedValue)));
+    }
+  }
+  function randomFrom(arr) { return arr[Math.floor(rng() * arr.length)]; }
+  function randomInt(min, max) { return Math.floor(rng() * (max - min + 1)) + min; }
+
+  // ============ THEME TOGGLE ============
+  const body = document.body;
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = themeToggle.querySelector('i');
+  function updateThemeIcon() { themeIcon.className = body.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon'; }
+  themeToggle.addEventListener('click', () => {
+    body.classList.toggle('dark');
+    updateThemeIcon();
+    savePrefs();
+  });
+
+  // ============ SHOWCASE SCROLL REVEAL ============
+  const revealTargets = document.querySelectorAll('.slide, .card.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.18 });
+  revealTargets.forEach(el => io.observe(el));
+
+  // ============ TOAST ============
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toastText');
+  let toastTimer = null;
+  function showToast(msg, icon) {
+    toastText.textContent = msg;
+    toast.querySelector('i').className = icon || 'fas fa-circle-check';
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  // ============ CULTURE & SECTOR DATA ============
+  const cultures = {
+    arabic: {
+      nationality: 'Emirati',
+      first: ['Ahmed','Fatima','Omar','Aisha','Youssef','Nour','Hassan','Layla','Karim','Samira','Tariq','Mona'],
+      last: ['Al-Rashid','Al-Farsi','Ibrahim','Khalil','Mahmoud','Nasser','Rahman','Saeed','Tawfik'],
+      cities: ['Dubai','Riyadh','Doha','Cairo','Amman','Manama','Muscat','Kuwait City'],
+      currency: 'SAR', countryCode: 'AE',
+      phone: () => `+971 5${randomInt(0,9)} ${randomInt(100,999)} ${randomInt(1000,9999)}`
+    },
+    french: {
+      nationality: 'French',
+      first: ['Jean','Marie','Pierre','Sophie','Luc','Camille','Antoine','Chloe','Louis','Emma'],
+      last: ['Dubois','Moreau','Laurent','Petit','Leroy','Fournier','Girard','Bonnet'],
+      cities: ['Paris','Lyon','Marseille','Toulouse','Bordeaux','Nice','Lille','Nantes'],
+      currency: 'EUR', countryCode: 'FR',
+      phone: () => `+33 ${randomInt(6,7)} ${randomInt(10,99)} ${randomInt(10,99)} ${randomInt(10,99)} ${randomInt(10,99)}`
+    },
+    english: {
+      nationality: 'American',
+      first: ['James','Mary','Robert','Patricia','John','Jennifer','Michael','Linda','David','Sarah'],
+      last: ['Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Wilson','Taylor'],
+      cities: ['New York','London','Sydney','Toronto','Singapore','Dubai','Berlin','Amsterdam'],
+      currency: 'USD', countryCode: 'US',
+      phone: () => `+1 (${randomInt(200,999)}) ${randomInt(200,999)}-${randomInt(1000,9999)}`
+    },
+    india: {
+      nationality: 'Indian',
+      first: ['Raj','Priya','Amit','Neha','Vikram','Anjali','Arjun','Kavya','Rohan','Deepa','Sanjay','Meera'],
+      last: ['Sharma','Patel','Kumar','Singh','Gupta','Reddy','Iyer','Nair','Chopra','Mehta'],
+      cities: ['Mumbai','Delhi','Bangalore','Chennai','Hyderabad','Pune','Kolkata','Ahmedabad'],
+      currency: 'INR', countryCode: 'IN',
+      phone: () => `+91 ${randomInt(70000,99999)} ${randomInt(10000,99999)}`
+    },
+    canada: {
+      nationality: 'Canadian',
+      first: ['Liam','Olivia','Noah','Emma','William','Charlotte','Benjamin','Ava','Lucas','Sophia'],
+      last: ['Tremblay','Roy','Gagnon','Martin','MacDonald','Campbell','Wilson','Anderson'],
+      cities: ['Toronto','Vancouver','Montreal','Calgary','Ottawa','Edmonton','Winnipeg','Quebec City'],
+      currency: 'CAD', countryCode: 'CA',
+      phone: () => `+1 (${randomInt(200,999)}) ${randomInt(200,999)}-${randomInt(1000,9999)}`
+    },
+    australia: {
+      nationality: 'Australian',
+      first: ['Jack','Charlotte','William','Ava','Oliver','Mia','Noah','Isla','Thomas','Ruby'],
+      last: ['Smith','Jones','Williams','Brown','Wilson','Taylor','Anderson','Thompson'],
+      cities: ['Sydney','Melbourne','Brisbane','Perth','Adelaide','Canberra','Gold Coast','Hobart'],
+      currency: 'AUD', countryCode: 'AU',
+      phone: () => `+61 4${randomInt(10,99)} ${randomInt(100,999)} ${randomInt(100,999)}`
+    },
+    southafrica: {
+      nationality: 'South African',
+      first: ['Thabo','Nomvula','Sipho','Lerato','Johan','Anika','Bongani','Zanele','Pieter','Precious'],
+      last: ['Nkosi','Dlamini','Van der Merwe','Botha','Khumalo','Mokoena','Naidoo','Fourie'],
+      cities: ['Johannesburg','Cape Town','Durban','Pretoria','Port Elizabeth','Bloemfontein'],
+      currency: 'ZAR', countryCode: 'ZA',
+      phone: () => `+27 ${randomInt(60,84)} ${randomInt(100,999)} ${randomInt(1000,9999)}`
+    },
+    germany: {
+      nationality: 'German',
+      first: ['Lukas','Anna','Maximilian','Laura','Felix','Lena','Jonas','Hannah','Paul','Marie'],
+      last: ['Mueller','Schmidt','Schneider','Fischer','Weber','Wagner','Becker','Hoffmann'],
+      cities: ['Berlin','Munich','Hamburg','Frankfurt','Cologne','Stuttgart','Dusseldorf','Leipzig'],
+      currency: 'EUR', countryCode: 'DE',
+      phone: () => `+49 1${randomInt(50,79)} ${randomInt(1000000,9999999)}`
+    },
+    spain: {
+      nationality: 'Spanish',
+      first: ['Carlos','Maria','Javier','Lucia','Manuel','Elena','Diego','Sofia','Pablo','Carmen'],
+      last: ['Garcia','Rodriguez','Gonzalez','Fernandez','Lopez','Martinez','Sanchez','Perez'],
+      cities: ['Madrid','Barcelona','Valencia','Seville','Zaragoza','Malaga','Bilbao'],
+      currency: 'EUR', countryCode: 'ES',
+      phone: () => `+34 ${randomInt(600,799)} ${randomInt(100,999)} ${randomInt(100,999)}`
+    }
+  };
+
+  const origins = ['African','European','South Asian','East Asian','Middle Eastern','Latin American','Indigenous','Caribbean','Southeast Asian'];
+
+  const baseSchemas = {
+    retail: ['OrderID','CustomerName','Email','Phone','Product','Category','Quantity','UnitPrice','TotalAmount','OrderDate','ShippingCity','Currency'],
+    finance: ['TransactionID','AccountHolder','Email','Phone','Type','Amount','Currency','BranchCity','Date','Status'],
+    healthcare: ['PatientID','PatientName','Email','Phone','Age','Diagnosis','Doctor','AdmissionDate','BillAmount','Currency'],
+    aviation: ['FlightID','PassengerName','Email','Phone','Airline','Origin','Destination','Date','Class','Price','Currency'],
+    logistics: ['ShipmentID','Sender','SenderPhone','Receiver','ReceiverPhone','Origin','Destination','Weight','Cost','Status'],
+    education: ['StudentID','StudentName','Email','Phone','Course','Grade','Credits','EnrollmentDate','Instructor'],
+    hr: ['EmployeeID','EmployeeName','Email','Phone','Department','Position','Salary','HireDate','Manager','Currency'],
+    personal: ['ProfileID','FullName','Email','Phone','Origin','HomeAddress','City','PostalCode','Country','IPAddress','VehiclePlate']
+  };
+  const sectorSchemas = baseSchemas;
+
+  function makeEmail(first, last) {
+    const domains = ['gmail.com','outlook.com','yahoo.com','proton.me','icloud.com'];
+    const style = randomInt(0,2);
+    const f = first.toLowerCase().replace(/[^a-z]/g,'');
+    const l = last.toLowerCase().replace(/[^a-z]/g,'');
+    const num = randomInt(1,99);
+    let local = style === 0 ? `${f}.${l}` : style === 1 ? `${f}${l}${num}` : `${f[0]}${l}`;
+    return `${local}@${randomFrom(domains)}`;
+  }
+  function makeIPv4() { return `${randomInt(1,254)}.${randomInt(0,255)}.${randomInt(0,255)}.${randomInt(1,254)}`; }
+  function makePlate() {
+    const letters = () => String.fromCharCode(65 + randomInt(0,25));
+    return `${letters()}${letters()}${randomInt(100,999)}${letters()}`;
+  }
+  function makePostal() { return String(randomInt(10000,99999)); }
+  function makeStreet() {
+    const names = ['Maple','Oak','Cedar','River','Sunset','Highland','Park','Willow','Elm','Lake'];
+    const types = ['St','Ave','Rd','Blvd','Ln','Dr'];
+    return `${randomInt(1,999)} ${randomFrom(names)} ${randomFrom(types)}`;
+  }
+
+  function generateData(sector, rowCount, cultureKey) {
+    const cult = cultures[cultureKey];
+    const schema = sectorSchemas[sector];
+    const data = [];
+
+    const airlines = ['SkyHigh Airways','AeroJet','GlobalWings','PacificBlue','EuroFlight'];
+    const products = ['Laptop Pro','Wireless Mouse','Mechanical Keyboard','4K Monitor','USB-C Hub','Headphones','Webcam'];
+    const categories = ['Electronics','Clothing','Home & Garden','Sports','Books'];
+    const diagnoses = ['Influenza','Hypertension','Diabetes Type 2','Migraine','Allergic Rhinitis','Fracture'];
+    const courses = ['Mathematics','Computer Science','Physics','Literature','History','Chemistry'];
+    const departments = ['Engineering','Marketing','Sales','Finance','Human Resources','Operations'];
+    const positions = ['Manager','Senior Engineer','Analyst','Coordinator','Director','Associate'];
+    const managers = ['Alice Johnson','Robert Chen','Maria Garcia','David Kim','Sarah Thompson','James Wilson'];
+
+    function distinctName(exclude) {
+      let name;
+      let guard = 0;
+      do {
+        name = `${randomFrom(cult.first)} ${randomFrom(cult.last)}`;
+        guard++;
+      } while (name === exclude && guard < 10);
+      return name;
+    }
+
+    for (let i = 1; i <= rowCount; i++) {
+      const row = {};
+      const fullName = `${randomFrom(cult.first)} ${randomFrom(cult.last)}`;
+      const [firstTok, ...lastToks] = fullName.split(' ');
+      const city = randomFrom(cult.cities);
+      const anotherCity = randomFrom(cult.cities.filter(c => c !== city)) || city;
+
+      // Precompute role-safe secondary names (Issue 2: no duplicate-role collisions)
+      let manager = randomFrom(managers);
+      if (manager === fullName) manager = distinctName(fullName);
+      const doctor = `Dr. ${distinctName(fullName)}`;
+      const receiver = distinctName(fullName);
+
+      schema.forEach(col => {
+        if (col.includes('ID')) {
+          const prefix = col.replace('ID','').substring(0,3).toUpperCase() || 'REC';
+          row[col] = `${prefix}-${String(i + 10000).padStart(5,'0')}`;
+        } else if (col === 'CustomerName' || col === 'AccountHolder' || col === 'PassengerName' || col === 'StudentName' || col === 'EmployeeName' || col === 'FullName' || col === 'PatientName' || col === 'Sender') {
+          row[col] = fullName;
+        } else if (col === 'Receiver') {
+          row[col] = receiver;
+        } else if (col === 'Manager') {
+          row[col] = manager;
+        } else if (col === 'Doctor') {
+          row[col] = doctor;
+        } else if (col === 'Email') {
+          row[col] = makeEmail(firstTok, lastToks.join(' ') || firstTok);
+        } else if (col === 'Phone' || col === 'SenderPhone' || col === 'ReceiverPhone') {
+          row[col] = cult.phone();
+        } else if (col === 'Origin' && sector === 'personal') {
+          row[col] = `${cult.nationality} (${randomFrom(origins)} descent)`;
+        } else if (col === 'Country') {
+          row[col] = cult.countryCode;
+        } else if (col === 'IPAddress') {
+          row[col] = makeIPv4();
+        } else if (col === 'VehiclePlate') {
+          row[col] = makePlate();
+        } else if (col === 'HomeAddress') {
+          row[col] = makeStreet();
+        } else if (col === 'PostalCode') {
+          row[col] = makePostal();
+        } else if (col === 'Product') {
+          row[col] = randomFrom(products);
+        } else if (col === 'Category') {
+          row[col] = randomFrom(categories);
+        } else if (col === 'Quantity') {
+          row[col] = randomInt(1,15);
+        } else if (col.includes('Price') || col.includes('Amount') || col === 'BillAmount' || col === 'Cost' || col === 'TotalAmount' || col === 'Salary') {
+          const base = col === 'Salary' ? 3500 + rng()*8500 : 20 + rng()*2000;
+          row[col] = base.toFixed(2);
+        } else if (col.includes('Date') || col === 'EnrollmentDate' || col === 'HireDate') {
+          const d = new Date(2026, Math.floor(rng()*12), Math.floor(rng()*28)+1);
+          row[col] = d.toISOString().split('T')[0];
+        } else if (col.includes('City') || col === 'Origin' || col === 'Destination' || col === 'BranchCity' || col === 'ShippingCity') {
+          row[col] = col === 'Destination' ? anotherCity : city;
+        } else if (col === 'Currency') {
+          row[col] = cult.currency;
+        } else if (col === 'Type' || col === 'Status') {
+          row[col] = randomFrom(['Active','Pending','Completed','Processing','Shipped']);
+        } else if (col === 'Class') {
+          row[col] = randomFrom(['Economy','Business','First']);
+        } else if (col === 'Airline') {
+          row[col] = randomFrom(airlines);
+        } else if (col === 'Diagnosis') {
+          row[col] = randomFrom(diagnoses);
+        } else if (col === 'Age') {
+          row[col] = randomInt(20,75);
+        } else if (col === 'Grade') {
+          row[col] = randomFrom(['A','B','C','D','F']);
+        } else if (col === 'Credits') {
+          row[col] = randomInt(1,5);
+        } else if (col === 'Weight') {
+          row[col] = (rng()*200+5).toFixed(1) + ' kg';
+        } else if (col === 'Course') {
+          row[col] = randomFrom(courses);
+        } else if (col === 'Department') {
+          row[col] = randomFrom(departments);
+        } else if (col === 'Position') {
+          row[col] = randomFrom(positions);
+        } else {
+          row[col] = '\u2014';
+        }
+      });
+      data.push(row);
+    }
+    return { schema, data };
+  }
+
+  // ============ MESSY DATA INJECTION (Issue 5) ============
+  function mangleColumnName(c) {
+    const variants = [
+      c.toUpperCase(),
+      ' ' + c + ' ',
+      c.replace(/([A-Z])/g, ' $1').trim(),
+      c.toLowerCase() + '_raw',
+      c + '__v2'
+    ];
+    return randomFrom(variants);
+  }
+
+  function typoify(str) {
+    if (typeof str !== 'string' || str.length < 3) return str;
+    const i = randomInt(0, str.length - 2);
+    const chars = str.split('');
+    const tmp = chars[i]; chars[i] = chars[i+1]; chars[i+1] = tmp;
+    return chars.join('');
+  }
+
+  function messifyData(schema, data, percent) {
+    const messySchema = schema.map(c => rng() < 0.25 ? mangleColumnName(c) : c);
+    const columnMap = {};
+    schema.forEach((c, idx) => columnMap[c] = messySchema[idx]);
+
+    const messyData = data.map(r => ({ ...r }));
+    const affectedCount = Math.max(1, Math.round(data.length * percent / 100));
+    const summary = { nulls: 0, typos: 0, dateFormat: 0, outliers: 0, columnsRenamed: 0, duplicatesAdded: 0 };
+    summary.columnsRenamed = messySchema.filter((c,i) => c !== schema[i]).length;
+
+    const errorTypes = ['null','typo','date','outlier'];
+    for (let n = 0; n < affectedCount; n++) {
+      const rowIdx = randomInt(0, messyData.length - 1);
+      const row = messyData[rowIdx];
+      const stringCols = schema.filter(c => typeof row[c] === 'string' && row[c] !== '\u2014');
+      const numericCols = schema.filter(c => typeof row[c] === 'string' && !isNaN(parseFloat(row[c])) && /\d/.test(row[c]));
+      const dateCols = schema.filter(c => c.toLowerCase().includes('date'));
+      const type = randomFrom(errorTypes);
+
+      if (type === 'null') {
+        const col = randomFrom(schema);
+        row[col] = '';
+        summary.nulls++;
+      } else if (type === 'typo' && stringCols.length) {
+        const col = randomFrom(stringCols);
+        row[col] = typoify(row[col]);
+        summary.typos++;
+      } else if (type === 'date' && dateCols.length) {
+        const col = randomFrom(dateCols);
+        const parts = String(row[col]).split('-');
+        if (parts.length === 3) {
+          row[col] = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          summary.dateFormat++;
+        }
+      } else if (type === 'outlier' && numericCols.length) {
+        const col = randomFrom(numericCols);
+        const val = parseFloat(row[col]);
+        row[col] = (val * randomInt(50,150)).toFixed(2);
+        row[col + '__outlier'] = true;
+        summary.outliers++;
+      }
+    }
+
+    // duplicates: clone a slice of rows and append
+    const dupCount = Math.max(0, Math.round(data.length * (percent/100) * 0.4));
+    for (let n = 0; n < dupCount; n++) {
+      const src = messyData[randomInt(0, data.length - 1)];
+      messyData.push({ ...src });
+    }
+    summary.duplicatesAdded = dupCount;
+
+    return { messySchema, messyData, summary };
+  }
+
+  // ============ UI ELEMENTS ============
+  const sectorSelect = document.getElementById('sectorSelect');
+  const cultureSelect = document.getElementById('cultureSelect');
+  const rowInput = document.getElementById('rowCountInput');
+  const seedInput = document.getElementById('seedInput');
+  const messyToggle = document.getElementById('messyToggle');
+  const messyRangeRow = document.getElementById('messyRangeRow');
+  const messyPercent = document.getElementById('messyPercent');
+  const messyPercentValue = document.getElementById('messyPercentValue');
+  const messySummaryEl = document.getElementById('messySummary');
+  const generateBtn = document.getElementById('generateBtn');
+  const progressContainer = document.getElementById('progressContainer');
+  const progressBar = document.getElementById('progressBar');
+  const tableHeader = document.getElementById('tableHeader');
+  const tableBody = document.getElementById('tableBody');
+  const rowIndicator = document.getElementById('rowIndicator');
+
+  let currentData = [];
+  let currentSchema = [];
+
+  messyToggle.addEventListener('change', () => {
+    messyRangeRow.style.display = messyToggle.checked ? 'flex' : 'none';
+  });
+  messyPercent.addEventListener('input', () => { messyPercentValue.textContent = messyPercent.value + '%'; });
+
+  function renderPreview(schema, data) {
+    tableHeader.innerHTML = `<tr>${schema.map(c => `<th>${c}</th>`).join('')}</tr>`;
+    const previewRows = data.slice(0, 20);
+    tableBody.innerHTML = previewRows.map(row =>
+      `<tr>${schema.map(c => {
+        const v = row[c];
+        const isNull = v === '' || v === undefined;
+        const isOutlier = !!row[c + '__outlier'];
+        const cls = isNull ? 'cell-null' : (isOutlier ? 'cell-outlier' : '');
+        return `<td class="${cls}">${isNull ? 'NULL' : v}</td>`;
+      }).join('')}</tr>`
+    ).join('');
+    rowIndicator.textContent = `${data.length.toLocaleString()} rows`;
+  }
+
+  document.querySelectorAll('.quick-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      rowInput.value = this.dataset.rows;
+    });
+  });
+
+  generateBtn.addEventListener('click', () => {
+    const sector = sectorSelect.value;
+    const culture = cultureSelect.value;
+    let rows = parseInt(rowInput.value, 10);
+    if (isNaN(rows) || rows < 1) rows = 500;
+    if (rows > 50000) rows = 50000;
+    rowInput.value = rows;
+
+    generateBtn.disabled = true;
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '0%';
+    messySummaryEl.style.display = 'none';
+
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 25 + 10;
+      if (progress >= 100) {
+        progress = 100;
+        progressBar.style.width = '100%';
+        clearInterval(interval);
+
+        setTimeout(() => {
+          setRng(seedInput.value.trim());
+          let { schema, data } = generateData(sector, rows, culture);
+
+          if (messyToggle.checked) {
+            const pct = parseInt(messyPercent.value, 10) || 25;
+            const { messySchema, messyData, summary } = messifyData(schema, data, pct);
+            schema = messySchema;
+            data = messyData;
+            messySummaryEl.style.display = 'block';
+            messySummaryEl.innerHTML = `<strong>Messy data summary:</strong> ${summary.nulls} nulls, ${summary.typos} typos, ${summary.dateFormat} inconsistent dates, ${summary.outliers} outliers, ${summary.columnsRenamed} irregular column names, ${summary.duplicatesAdded} duplicate rows added.`;
+          }
+
+          currentData = data;
+          currentSchema = schema;
+          renderPreview(schema, data);
+          generateBtn.disabled = false;
+          progressContainer.style.display = 'none';
+          showToast(`Generated ${data.length.toLocaleString()} rows`, 'fas fa-circle-check');
+          savePrefs();
+        }, 150);
+      } else {
+        progressBar.style.width = progress + '%';
+      }
+    }, 60);
+  });
+
+  // ============ EXPORTS (Issue 7) ============
+  function requireData() {
+    if (!currentData.length) { showToast('Generate data first', 'fas fa-triangle-exclamation'); return false; }
+    return true;
+  }
+  function downloadBlob(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+  function escXml(v) {
+    return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+  }
+  function escSql(v) { return String(v).replace(/'/g, "''"); }
+
+  document.getElementById('csvBtn').addEventListener('click', () => {
+    if (!requireData()) return;
+    let csv = currentSchema.join(',') + '\n';
+    currentData.forEach(row => {
+      csv += currentSchema.map(c => {
+        const val = String(row[c] ?? '');
+        return (val.includes(',') || val.includes('"')) ? `"${val.replace(/"/g,'""')}"` : val;
+      }).join(',') + '\n';
+    });
+    downloadBlob(csv, `data_factory_mc88_${Date.now()}.csv`, 'text/csv;charset=utf-8;');
+  });
+
+  document.getElementById('excelBtn').addEventListener('click', () => {
+    if (!requireData()) return;
+    const rows = currentData.map(r => { const o = {}; currentSchema.forEach(c => o[c] = r[c] ?? ''); return o; });
+    const ws = XLSX.utils.json_to_sheet(rows, { header: currentSchema });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Data');
+    XLSX.writeFile(wb, `data_factory_mc88_${Date.now()}.xlsx`);
+  });
+
+  document.getElementById('jsonBtn').addEventListener('click', () => {
+    if (!requireData()) return;
+    downloadBlob(JSON.stringify(currentData, null, 2), `data_factory_mc88_${Date.now()}.json`, 'application/json;charset=utf-8;');
+  });
+
+  document.getElementById('sqlBtn').addEventListener('click', () => {
+    if (!requireData()) return;
+    const table = (sectorSelect.value || 'dataset').replace(/[^a-z0-9_]/gi,'_');
+    const cols = currentSchema.map(c => '`' + c.replace(/[^a-zA-Z0-9_]/g,'_') + '`').join(', ');
+    let sql = `-- Generated by Data Factory MC88\nCREATE TABLE IF NOT EXISTS \`${table}\` (\n  ${currentSchema.map(c => '`' + c.replace(/[^a-zA-Z0-9_]/g,'_') + '` TEXT').join(',\n  ')}\n);\n\n`;
+    currentData.forEach(row => {
+      const vals = currentSchema.map(c => `'${escSql(row[c] ?? '')}'`).join(', ');
+      sql += `INSERT INTO \`${table}\` (${cols}) VALUES (${vals});\n`;
+    });
+    downloadBlob(sql, `data_factory_mc88_${Date.now()}.sql`, 'text/plain;charset=utf-8;');
+  });
+
+  document.getElementById('xmlBtn').addEventListener('click', () => {
+    if (!requireData()) return;
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<dataset>\n';
+    currentData.forEach(row => {
+      xml += '  <row>\n';
+      currentSchema.forEach(c => {
+        const tag = c.replace(/[^a-zA-Z0-9_]/g,'_');
+        xml += `    <${tag}>${escXml(row[c] ?? '')}</${tag}>\n`;
+      });
+      xml += '  </row>\n';
+    });
+    xml += '</dataset>';
+    downloadBlob(xml, `data_factory_mc88_${Date.now()}.xml`, 'application/xml;charset=utf-8;');
+  });
+
+  document.getElementById('mdBtn').addEventListener('click', () => {
+    if (!requireData()) return;
+    let md = `| ${currentSchema.join(' | ')} |\n`;
+    md += `| ${currentSchema.map(() => '---').join(' | ')} |\n`;
+    currentData.forEach(row => {
+      md += `| ${currentSchema.map(c => String(row[c] ?? '').replace(/\|/g,'\\|')).join(' | ')} |\n`;
+    });
+    downloadBlob(md, `data_factory_mc88_${Date.now()}.md`, 'text/markdown;charset=utf-8;');
+  });
+
+  document.getElementById('parquetBtn').addEventListener('click', () => {
+    showToast('Parquet needs a dedicated library — use JSON/CSV instead', 'fas fa-circle-info');
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    if (!requireData()) return;
+    let tsv = currentSchema.join('\t') + '\n';
+    currentData.slice(0, 200).forEach(row => {
+      tsv += currentSchema.map(c => row[c] ?? '').join('\t') + '\n';
+    });
+    navigator.clipboard.writeText(tsv).then(() => {
+      showToast('Copied to clipboard', 'fas fa-circle-check');
+    }).catch(() => showToast('Failed to copy', 'fas fa-triangle-exclamation'));
+  });
+
+  // Issue 11: true Office/Google online import needs a public URL, which a static
+  // client-only page can't provide. Instead, open a full, styled, spreadsheet-like
+  // view of the entire dataset in a new tab.
+  document.getElementById('openViewerBtn').addEventListener('click', () => {
+    if (!requireData()) return;
+    const rowsHtml = currentData.map(row => `<tr>${currentSchema.map(c => `<td>${row[c] ?? ''}</td>`).join('')}</tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Data Factory MC88 – Full Preview</title>
+      <style>
+        body{font-family:'Segoe UI',Arial,sans-serif;margin:0;background:#f3f4f6;}
+        h2{padding:1rem 1.5rem;margin:0;background:#fff;border-bottom:1px solid #e5e7eb;}
+        table{border-collapse:collapse;width:100%;font-size:13px;background:#fff;}
+        th,td{border:1px solid #e5e7eb;padding:6px 10px;text-align:left;white-space:nowrap;}
+        th{background:#f9fafb;position:sticky;top:0;}
+      </style></head><body>
+      <h2>Data Factory MC88 — ${currentData.length.toLocaleString()} rows</h2>
+      <table><thead><tr>${currentSchema.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table>
+      </body></html>`;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  });
+
+  // ============ LOCAL STORAGE PREFERENCES (Issue 12) ============
+  const PREF_KEY = 'dataFactoryMc88Prefs';
+  function savePrefs() {
+    try {
+      localStorage.setItem(PREF_KEY, JSON.stringify({
+        dark: body.classList.contains('dark'),
+        sector: sectorSelect.value,
+        culture: cultureSelect.value,
+        rows: rowInput.value,
+        seed: seedInput.value
+      }));
+    } catch (e) { /* storage unavailable */ }
+  }
+  function loadPrefs() {
+    try {
+      const raw = localStorage.getItem(PREF_KEY);
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      if (p.dark === false) body.classList.remove('dark'); else if (p.dark === true) body.classList.add('dark');
+      updateThemeIcon();
+      if (p.sector) sectorSelect.value = p.sector;
+      if (p.culture) cultureSelect.value = p.culture;
+      if (p.rows) rowInput.value = p.rows;
+      if (p.seed) seedInput.value = p.seed;
+    } catch (e) { /* ignore */ }
+  }
+  ['change'].forEach(evt => {
+    sectorSelect.addEventListener(evt, savePrefs);
+    cultureSelect.addEventListener(evt, savePrefs);
+  });
+  rowInput.addEventListener('change', savePrefs);
+  seedInput.addEventListener('change', savePrefs);
+
+  document.getElementById('resetPrefsBtn').addEventListener('click', () => {
+    try { localStorage.removeItem(PREF_KEY); } catch (e) {}
+    sectorSelect.value = 'retail';
+    cultureSelect.value = 'english';
+    rowInput.value = 500;
+    seedInput.value = '';
+    messyToggle.checked = false;
+    messyRangeRow.style.display = 'none';
+    body.classList.add('dark');
+    updateThemeIcon();
+    showToast('Preferences reset', 'fas fa-rotate-left');
+  });
+
+  // Initial load
+  loadPrefs();
+  updateThemeIcon();
+  setRng(seedInput.value.trim());
+  const init = generateData(sectorSelect.value || 'retail', parseInt(rowInput.value,10) || 500, cultureSelect.value || 'english');
+  currentData = init.data;
+  currentSchema = init.schema;
+  renderPreview(init.schema, init.data);
+})();
+</script>
+</body>
+</html>
+
