@@ -1,4 +1,4 @@
-# 🏭 Data Factory MC88 - Générateur de Données Mock
+# 🏭 Data Factory MC88 — Générateur de Données Mock
 
 **Data Factory by MC88** est un générateur de données de test professionnel et léger qui fonctionne entièrement côté client (dans le navigateur). Il permet de créer des jeux de données réalistes et personnalisés pour tester des applications, pratiquer le nettoyage de données, créer des démonstrations ou alimenter des bases de données de développement.
 
