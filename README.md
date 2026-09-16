@@ -19,7 +19,7 @@ Tout se passe **dans votre navigateur**. Aucun serveur, aucun compte, aucune don
 Et si vous voulez voir comment vos outils se comportent face à des données imparfaites, un mode « données sales » est là pour ça — valeurs manquantes, fautes de frappe, formats incohérents, valeurs aberrantes. Comme dans la vraie vie.
 
 ---
-
+<!-- 
 ## 📸 Un aperçu
 
 <div align="center">
@@ -45,7 +45,7 @@ Et si vous voulez voir comment vos outils se comportent face à des données imp
 </div>
 
 ---
-
+-->
 ## ✨ Ce que vous trouverez
 
 **Huit secteurs, chacun avec sa logique propre.**  
